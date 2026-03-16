@@ -1,0 +1,6 @@
+{
+	"id": "org.eclipse.osgi.technology.featurelauncher.test:test-feature:1.0.0",
+	"name": "Test Feature",
+	"complete": true,
+	"bundles": []
+}

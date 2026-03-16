@@ -1,0 +1,8 @@
+{
+  "id": "org.eclipse.osgi.technology.featurelauncher.extras:http-installer-feature:1.0.0-SNAPSHOT",
+  "name": "Feature HTTP Installer",
+  "complete": true,
+  "bundles": [
+    { "id": "org.eclipse.osgi-technology.featurelauncher.extras:installer.http.simple:1.0.0-SNAPSHOT" }
+  ]
+}

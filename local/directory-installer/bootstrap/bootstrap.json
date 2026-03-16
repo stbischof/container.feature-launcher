@@ -1,0 +1,17 @@
+{
+  "id": "org.eclipse.osgi.technology.featurelauncher.extras:directory-installer-feature:1.0.0-SNAPSHOT",
+  "name": "Feature Directory Installer",
+  "complete": true,
+  "bundles": [
+    { "id": "org.eclipse.osgi-technology.featurelauncher.extras:installer.directory:1.0.0-SNAPSHOT" }
+  ],
+  "extensions": {
+    "eclipse.osgi.technology.hash.checker": {
+      "kind": "mandatory",
+      "type": "json",
+      "json": {
+        "allow_unverified": true
+      }
+    }
+  }
+}
