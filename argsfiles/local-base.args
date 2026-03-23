@@ -1,0 +1,6 @@
+# Local Base - lite launcher, local repo only
+# Env vars: OSGI_FRAMEWORK_STORAGE, OSGI_FRAMEWORK_STORAGE_CLEAN, JAVA_OPTS
+-f /app/bootstrap/bootstrap.json
+-a file:///app/storage/repo
+-l org.osgi.framework.storage=${OSGI_FRAMEWORK_STORAGE:-/app/storage/framework}
+-l org.osgi.framework.storage.clean=${OSGI_FRAMEWORK_STORAGE_CLEAN:-onFirstInit}

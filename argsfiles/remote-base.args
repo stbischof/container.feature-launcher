@@ -1,0 +1,7 @@
+# Remote Base - maven launcher, local + remote repos
+# Env vars: OSGI_FRAMEWORK_STORAGE, OSGI_FRAMEWORK_STORAGE_CLEAN
+-f /app/bootstrap/bootstrap.json
+-a file:///app/storage/repo
+-a https://repo1.maven.org/maven2/,name=central
+-l org.osgi.framework.storage=${OSGI_FRAMEWORK_STORAGE:-/app/storage/framework}
+-l org.osgi.framework.storage.clean=${OSGI_FRAMEWORK_STORAGE_CLEAN:-onFirstInit}

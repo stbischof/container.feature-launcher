@@ -17,25 +17,17 @@ jobs:
 
     strategy:
       fail-fast: false
-      max-parallel: 1
       matrix:
-        include:
-          - variant: local-base
-            module: local/base
-            image: feature-launcher-local-base
-            readme: local/base/README.md
-          - variant: remote-base
-            module: remote/base
-            image: feature-launcher-remote-base
-            readme: remote/base/README.md
-          - variant: local-directory-installer
-            module: local/directory-installer
-            image: feature-launcher-local-directory-installer
-            readme: local/directory-installer/README.md
-          - variant: remote-http-installer
-            module: remote/http-installer
-            image: feature-launcher-remote-http-installer
-            readme: remote/http-installer/README.md
+        base:
+          - { image: "eclipse-temurin:17-jre-noble", tag: "eclipse-temurin-17", platforms: "linux/amd64,linux/arm64/v8,linux/arm/v7", run_user: "1000" }
+          - { image: "eclipse-temurin:25-jre-noble", tag: "eclipse-temurin-25", platforms: "linux/amd64,linux/arm64/v8,linux/riscv64", run_user: "1000" }
+          - { image: "ubuntu/jre:21-24.04_stable", tag: "ubuntu-chiseled-21", platforms: "linux/amd64,linux/arm64/v8", run_user: "nonroot" }
+          - { image: "gcr.io/distroless/java25-debian13:nonroot", tag: "grc-distroless-25", platforms: "linux/amd64,linux/arm64/v8", run_user: "nonroot" }
+        variant:
+          - { name: "local-base", launcher: "all.lite", extras: "" }
+          - { name: "remote-base", launcher: "all.maven", extras: "" }
+          - { name: "local-directory-installer", launcher: "all.lite", extras: "installer.directory" }
+          - { name: "remote-http-installer", launcher: "all.maven", extras: "installer.http.simple" }
 
     steps:
       - name: Checkout code
@@ -47,17 +39,27 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Download dependencies
-        run: mvn dependency:copy-dependencies -pl ${{ matrix.module }} -am -DexcludeTransitive=true -DincludeScope=compile
+      - name: Download launcher JAR
+        run: |
+          mkdir -p target/dependency
+          mvn dependency:copy \
+            -Dartifact=org.eclipse.osgi-technology.featurelauncher.launch:${{ matrix.variant.launcher }}:1.0.0-SNAPSHOT \
+            -DoutputDirectory=target/dependency/ \
+            -Dmdep.stripVersion=true
+          mv target/dependency/${{ matrix.variant.launcher }}.jar target/dependency/launcher.jar
 
-      - name: Update dockerhub repo description
-        if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
-        uses: peter-evans/dockerhub-description@432a30c9e07499fd01da9f8a49f0faf9e0ca5b77 # v4.0.2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_TOKEN }}
-          repository: eclipseosgitech/${{ matrix.image }}
-          readme-filepath: ./${{ matrix.readme }}
+      - name: Download extras JARs
+        if: ${{ matrix.variant.extras != '' }}
+        run: |
+          mkdir -p target/dependency/extras
+          mvn dependency:copy \
+            -Dartifact=org.eclipse.osgi-technology.featurelauncher.extras:${{ matrix.variant.extras }}:1.0.0-SNAPSHOT \
+            -DoutputDirectory=target/dependency/extras/ \
+            -Dmdep.stripVersion=true
+
+      - name: Create empty extras dir
+        if: ${{ matrix.variant.extras == '' }}
+        run: mkdir -p target/dependency/extras
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3.2.1
@@ -82,12 +84,25 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Update DockerHub repo description
+        if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
+        uses: peter-evans/dockerhub-description@432a30c9e07499fd01da9f8a49f0faf9e0ca5b77 # v4.0.2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+          repository: eclipseosgitech/feature-launcher-${{ matrix.variant.name }}
+          readme-filepath: ./docs/${{ matrix.variant.name }}.md
+
       - name: Build and Push Multi-Arch Docker Image
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         with:
-          context: ./${{ matrix.module }}
-          file: ./${{ matrix.module }}/Dockerfile
-          platforms: linux/amd64,linux/arm64/v8
+          context: .
+          file: ./Dockerfile
+          platforms: ${{ matrix.base.platforms }}
           push: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
+          build-args: |
+            BASE_IMAGE=${{ matrix.base.image }}
+            VARIANT=${{ matrix.variant.name }}
+            RUN_USER=${{ matrix.base.run_user }}
           tags: |
-            ghcr.io/eclipse-osgi-technology/${{ matrix.image }}:snapshot
+            ghcr.io/eclipse-osgi-technology/feature-launcher-${{ matrix.variant.name }}:${{ matrix.base.tag }}-snapshot

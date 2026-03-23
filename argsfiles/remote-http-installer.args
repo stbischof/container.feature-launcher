@@ -1,0 +1,17 @@
+# Remote HTTP Installer - maven launcher + HTTP feature fetcher
+# Env vars: OSGI_FRAMEWORK_STORAGE, OSGI_FRAMEWORK_STORAGE_CLEAN,
+#           OSGITECH_HTTP_FEATURES_URL, OSGITECH_HTTP_SCAN_MODE,
+#           OSGITECH_HTTP_SCAN_INTERVAL, OSGITECH_HTTP_CONNECT_TIMEOUT,
+#           OSGITECH_HTTP_REQUEST_TIMEOUT, OSGITECH_HTTP_SERVER_ID,
+#           OSGITECH_HTTP_FRAMEWORK_ID
+-f /app/bootstrap/bootstrap.json
+-a file:///app/storage/repo
+-a https://repo1.maven.org/maven2/,name=central
+-l org.osgi.framework.storage=${OSGI_FRAMEWORK_STORAGE:-/app/storage/framework}
+-l org.osgi.framework.storage.clean=${OSGI_FRAMEWORK_STORAGE_CLEAN:-onFirstInit}
+-l osgi.technology.featurelauncher.extras.installer.http.simple.features.url=${OSGITECH_HTTP_FEATURES_URL}
+-l osgi.technology.featurelauncher.extras.installer.http.simple.repo.dir=/app/storage/repo
+-l osgi.technology.featurelauncher.extras.installer.http.simple.scan.mode=${OSGITECH_HTTP_SCAN_MODE:-ONCE}
+-l osgi.technology.featurelauncher.extras.installer.http.simple.scan.interval=${OSGITECH_HTTP_SCAN_INTERVAL:-300}
+-l osgi.technology.featurelauncher.extras.installer.http.simple.connect.timeout=${OSGITECH_HTTP_CONNECT_TIMEOUT:-30}
+-l osgi.technology.featurelauncher.extras.installer.http.simple.request.timeout=${OSGITECH_HTTP_REQUEST_TIMEOUT:-60}

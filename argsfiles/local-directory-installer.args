@@ -1,0 +1,13 @@
+# Local Directory Installer - lite launcher + directory scanner
+# Env vars: OSGI_FRAMEWORK_STORAGE, OSGI_FRAMEWORK_STORAGE_CLEAN,
+#           OSGITECH_FEATURES_DIR, OSGITECH_SCAN_MODE, OSGITECH_SCAN_INTERVAL
+-f /app/bootstrap/bootstrap.json
+-a file:///app/storage/repo
+-l org.osgi.framework.storage=${OSGI_FRAMEWORK_STORAGE:-/app/storage/framework}
+-l org.osgi.framework.storage.clean=${OSGI_FRAMEWORK_STORAGE_CLEAN:-onFirstInit}
+-l osgi.technology.featurelauncher.extras.installer.directory.features.dir=${OSGITECH_FEATURES_DIR:-/app/storage/features}
+-l osgi.technology.featurelauncher.extras.installer.directory.repo.dir=/app/storage/repo
+-l osgi.technology.featurelauncher.extras.installer.directory.scan.mode=${OSGITECH_SCAN_MODE:-ONCE}
+-l osgi.technology.featurelauncher.extras.installer.directory.scan.interval=${OSGITECH_SCAN_INTERVAL:-300}
+-l osgi.technology.featurelauncher.extras.installer.directory.artifacts.dir=${OSGITECH_ARTIFACTS_DIR:-/app/artifacts}
+-e eclipse.osgi.technology.hash.checker=org.eclipse.osgi.technology.featurelauncher.extensions.hash.checker.BundleHashChecker
